@@ -38,19 +38,22 @@ let tx_output_table = {
 	}
 };
 
-let rawtx_output = DBWallet.define('rawtx_output', tx_output_table, {
-	freezeTableName: true,
-	indexes: [
-		{
-			unique: true,
-			fields: ['txid','output_index']
-		},
+let rawtx_output={}
+for(var v of Config.supportAssets){
+    rawtx_output[v] = DBWallet.define(v+'_rawtx_output', tx_output_table, {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['txid','output_index']
+            },
 
-		{
-			unique: false,
-			fields: ['address']
-		}
-	]
-});
+            {
+                unique: false,
+                fields: ['address']
+            }
+        ]
+    });
+}
 
 module.exports = rawtx_output;

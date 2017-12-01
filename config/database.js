@@ -5,7 +5,7 @@ exports.database = {
         host: 'localhost',
         dialect: 'mysql',
     },
-    database: 'wallet',
+    database: 'block_scan',
     userName: 'root',
     password: '123456',
 }

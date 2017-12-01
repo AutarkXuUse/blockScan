@@ -1,6 +1,7 @@
 'use strict';
 let sequelize = require('sequelize');
-let DBWallet = require('../connect').DBWallet;
+let Config=require('../../config');
+const DBWallet = require('../connect').DBWallet;
 
 let rawtx_table = {
 	id: {
@@ -24,6 +25,10 @@ let rawtx_table = {
 	},
 };
 
-let rawtx = DBWallet.define('rawtx', rawtx_table,{freezeTableName: true,});
+let rawtx={}
+
+for(let v of Config.supportAssets){
+    rawtx[v] = DBWallet.define(v+'_rawtx', rawtx_table,{freezeTableName: true,});
+}
 
 module.exports = rawtx;

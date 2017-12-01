@@ -24,14 +24,17 @@ let tx_input_table = {
 
 };
 
-let rawtx_input = DBWallet.define('rawtx_input', tx_input_table, {
-	freezeTableName: true,
-	indexes: [
-		{
-			unique: true,
-			fields: ['previous_output_id']
-		},
-	]
-});
+let rawtx_input={}
+for(let v of Config.supportAssets){
+    rawtx_input[v] = DBWallet.define(v+'_rawtx_input', tx_input_table, {
+        freezeTableName: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['previous_output_id']
+            },
+        ]
+    });
+}
 
 module.exports = rawtx_input;
