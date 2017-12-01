@@ -1,28 +1,17 @@
 'use strict'
 const Request = require('request');
 const Async = require('async');
+const Logger=require('../utils/logger');
 let util = require('util');
-let rpcCode = require('../constance/rpccode');
-
-const normalSyncTime = 0;//ms
-const blockErrorSyncTime = 1000;//ms
+let ERR_RPC_CODE = require('../msgdefine/msgtype').ERR_RPC_CODE;
 
 function Bitcoin(config, asset) {
-    this.config = config;
-    this.startBlock = config.startBlock;
     this.account = config.account;
     this.passwd = config.passwd;
     this.host = config.host;
     this.port = config.port;
     this.auth = 'Basic ' + new Buffer(util.format('%s:%s', config.account, config.passwd)).toString('base64');
     this.asset = asset;
-    this.handlingBlockHeight = 0;
-    this.decimal = 8;
-    this.idManager = {
-        rawtx: 0,
-        rawOutput: 0
-    }
-    this.nextSyncTime = 0;//ms
 }
 
 Bitcoin.prototype.start = function (areturn) {
@@ -52,7 +41,7 @@ Bitcoin.prototype._makeRequest = function (method, params, func) {
             Authorization: this.auth,
             'Content-Type': 'text/plain'
         },
-        body: JSON.stringify({jsonrpc: '1.0', method: method, params: params, id: 'my'}),
+        body: JSON.stringify({jsonrpc: '1.0', method: method, params: params, id: 'hi,bitcoin'}),
         timeout: 5000
     }, function (err, response, body) {
         if (err) {
@@ -76,11 +65,11 @@ Bitcoin.prototype.getBestBlockHeight = function (arg,func) {
         pthis._makeRequest('getbestblockhash', [], (err, res) => {
             if (err) {
                 Logger.error('Bitcoin.getbestblockhash failed,error msg', err);
-                return done(rpcCode.FATAL,err);
+                return done(ERR_RPC_CODE.FATAL,err);
             }
             if (res.error) {
             Logger.error('Bitcoin.getbestblockhash failed,error msg:%s', res.error.msg)
-            return done(rpcCode.FATAL,res.error);
+            return done(ERR_RPC_CODE.FATAL,res.error);
         }
         done(null, res.result);
     });
@@ -108,20 +97,31 @@ Bitcoin.prototype.getBestBlockHeight = function (arg,func) {
     });
 };
 
+Bitcoin.prototype.getrawtransaction=function(tx,areturn){
+    let pthis=this;
+    this._makeRequest('getrawtransaction',[tx,1],(err,res)=>{
+      if(err){
+          Logger.error('Bitcoin.getrawtransaction,failed error,msg:%s',err.msg);
+          return areturn(err);
+      }
+
+    })
+}
+
 Bitcoin.prototype.getTransaction = function (h, func) {
     let pthis = this;
     Async.waterfall([function (done) {
         pthis._makeRequest('gettransaction', [h], (err, res) => {
             if (err) {
-                Logger.error('Bitcoin.gettransaction，failed,error msg:%s', err);
+                Logger.error('Bitcoin.gettransaction,failed,error msg:%s', err);
                 return func(rpcCode.FATAL, err);
             }
             if (res.error) {
-            Logger.error('Bitcoin.gettransaction，failed,error msg:%s', res.error.msg);
+            Logger.error('Bitcoin.gettransaction,failed,error msg:%s', res.error.msg);
             return func(rpcCode.FATAL,res.error);
         }
         if (!res.result.blockhash) {
-            Logger.error('Bitcoin.gettransaction，failed,not a comfirmation');
+            Logger.error('Bitcoin.gettransaction,failed,not a comfirmation');
             return func(rpcCode.FATAL,new Error('No confirmed block'));
         }
         let data = {
