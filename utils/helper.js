@@ -1,8 +1,10 @@
 'use strict'
 
-exports.generateMyErrorObj=function (code,message) {
+exports.generateMyError = function (code, message) {
     return {
-        code:code,
-        message:message,
+        code: code,
+        message: message,
     }
 }
+
+
