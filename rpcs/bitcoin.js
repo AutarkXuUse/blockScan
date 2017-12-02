@@ -70,8 +70,8 @@ Bitcoin.prototype.getBestBlockHeight = function (arg, func) {
                         return done(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
                     }
                     if (res.error) {
-                        Logger.error('Bitcoin.getbestblockhash failed,error msg:%s', res.error.msg)
-                        return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.msg));
+                        Logger.error('Bitcoin.getbestblockhash failed,error msg:%s', res.error.message)
+                        return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
                     }
                     done(null, res.result);
                 });
@@ -83,8 +83,8 @@ Bitcoin.prototype.getBestBlockHeight = function (arg, func) {
                         return done(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
                     }
                     if (res.error) {
-                        Logger.error('Bitcoin.getblock failed,error msg:%s', res.error.msg);
-                        return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.msg));
+                        Logger.error('Bitcoin.getblock failed,error msg:%s', res.error.message);
+                        return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
                     }
                     let data = {
                         height: res.result.height,
@@ -101,17 +101,16 @@ Bitcoin.prototype.getBestBlockHeight = function (arg, func) {
 };
 
 Bitcoin.prototype.getrawtransaction = function (tx, areturn) {
-    let pthis = this;
     this._makeRequest('getrawtransaction', [tx, 1], (err, res) => {
         if (err) {
-            Logger.error('Bitcoin.getrawtransaction,failed error,msg:%s', err.msg);
+            Logger.error('Bitcoin.getrawtransaction,failed error,msg:%s', err.message);
             return areturn(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
         }
         if(res.error){
-            Logger.error('Bitcoin.getblock failed,error msg:%s', res.error.msg);
-            return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.msg));
+            Logger.error('Bitcoin.getblock failed,error msg:%s', res.error.message);
+            return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
         }
-        return areturn(null,);
+        return areturn(null,res.result);
     })
 }
 
