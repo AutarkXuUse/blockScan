@@ -9,6 +9,7 @@ exports.ERR_RPC_CODE={
 exports.ERR_SERVICE_CODE={
     ERR_UNKNOW:2001,
     ERR_HEIGHT_NULL:2001,
+    ERR_HASH_NULL:2002
 }
 
 exports.ERR_OTHER={

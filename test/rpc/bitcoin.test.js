@@ -27,3 +27,6 @@ BTC.getrawtransaction('e4a6f293fd343c7068440083a7525803a5a22c0678b8fb928eff1b0d3
     console.log(result);
 })
 
+BTC.getBlockHashByheight(410000,function (err,result) {
+    console.log(result)
+})

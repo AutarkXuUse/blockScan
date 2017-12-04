@@ -70,7 +70,7 @@ Bitcoin.prototype.getBestBlockHeight = function (func) {
                         return done(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
                     }
                     if (res.error) {
-                        Logger.error('Bitcoin.getbestblockhash failed,error msg:%s', res.error.message)
+                        Logger.error('Bitcoin.getbestblockhash failed,res.error msg:%s', res.error.message)
                         return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
                     }
                     done(null, res.result);
@@ -104,7 +104,7 @@ Bitcoin.prototype.getrawtransaction = function (tx, areturn) {
             return areturn(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
         }
         if(res.error){
-            Logger.error('Bitcoin.getblock failed,error msg:%s', res.error.message);
+            Logger.error('Bitcoin.getblock failed,res.error msg:%s', res.error.message);
             return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
         }
         return areturn(null,res.result);
@@ -118,11 +118,26 @@ Bitcoin.prototype.getBlockHashByheight=function (height,areturn) {
             return areturn(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
         }
         if(res.error){
-            Logger.error('Bitcoin.getBlockHashByheight failed,error msg:%s', res.error.message);
+            Logger.error('Bitcoin.getBlockHashByheight failed,res.error msg:%s', res.error.message);
             return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
         }
         return areturn(null,res.result);
     })
 }
+
+Bitcoin.prototype.getBlockInfo=function(hash,areturn){
+    this._makeRequest('getblock',[hash],(err,res)=>{
+        if(err){
+            Logger.error('Bitcoin.getBlockInfo,failed error,msg:%s', err.message);
+            return areturn(new MyError(ERR_RPC_CODE.ERR_CONN_RETURN, err.message));
+        }
+        if(res.error){
+            Logger.error('Bitcoin.getBlockInfo failed,res.error msg:%s', res.error.message);
+            return areturn(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
+        }
+        return areturn(null,res.result);
+    })
+}
+
 
 module.exports = Bitcoin;
