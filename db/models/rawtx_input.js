@@ -1,6 +1,8 @@
 'use strict';
 let sequelize = require('sequelize');
 let DBWallet = require('../connect').DBWallet;
+let Config=require('../../config');
+
 
 let tx_input_table = {
 	id: {
