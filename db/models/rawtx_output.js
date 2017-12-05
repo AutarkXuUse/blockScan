@@ -12,9 +12,9 @@ let tx_output_table = {
 	},
 	rawtx_id: {
 		type: sequelize.BIGINT,
-		unique: false,
-		allowNull: false
-	},
+		allowNull: false,
+        unique: 'uq_k_store'
+    },
 	asset: {
 		type: sequelize.STRING,
 		allowNull: false
@@ -22,7 +22,6 @@ let tx_output_table = {
 	txid: {
 		type: sequelize.STRING,
 		allowNull: false,
-		unique: 'uq_k_store'
 	},
 	output_index: {
 		type: sequelize.BIGINT,
