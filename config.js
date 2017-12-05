@@ -1,3 +1,3 @@
 'use strict'
 
-exports.supportAssets=['BTC'];
+exports.supportAssets=['BTC','LTC','BCC'];

@@ -7,8 +7,8 @@ const Config = require('../config');
 const Logger=require('../utils/logger');
 
 exports.initOrm = function (areturn) {
-    Async.eachSeries(Config.supportAssets, function (node, callback) {
-            Async.series([
+    Async.map(Config.supportAssets, function (node, callback) {
+            Async.parallel([
                     function (done) {
                         Rawtx[node].sync().then(() => {
                             return done()
@@ -40,10 +40,14 @@ exports.initOrm = function (areturn) {
         },
         function (err) {
             if (err) {
-                Logger.error('Model sync fail asset:%s', node);
+                Logger.error('Model sync fail');
                 return areturn(err);
             }
             return areturn();
         })
 
 }
+
+require('./init').initOrm(err=>{
+    console.log(err)
+})
