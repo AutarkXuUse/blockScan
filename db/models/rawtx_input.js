@@ -15,10 +15,6 @@ let tx_input_table = {
 		allowNull: false,
 		unique: false,
 	},
-	asset: {
-		type: sequelize.STRING,
-		allowNull: false
-	},
 	previous_output_id: {
 		type: sequelize.BIGINT,
 		allowNull: false //todo should be foreign key

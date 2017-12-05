@@ -15,10 +15,6 @@ let tx_output_table = {
 		allowNull: false,
         unique: 'uq_k_store'
     },
-	asset: {
-		type: sequelize.STRING,
-		allowNull: false
-	},
 	txid: {
 		type: sequelize.STRING,
 		allowNull: false,

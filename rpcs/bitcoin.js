@@ -105,7 +105,7 @@ Bitcoin.prototype.getrawtransaction = function (tx, areturn) {
         }
         if(res.error){
             Logger.error('Bitcoin.getblock failed,res.error msg:%s', res.error.message);
-            return done(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
+            return areturn(new MyError(ERR_RPC_CODE.ERR_WALLET_RETURN, res.error.message));
         }
         return areturn(null,res.result);
     })

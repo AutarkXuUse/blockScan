@@ -1,12 +1,15 @@
 'use strict'
 const ERR_SERVICE_CODE = require('../msgdefine/msgtype').ERR_SERVICE_CODE;
-const Rpc = require('../rpcs/BTC');
+const rpc = require('../rpcs/BTC');
 const Async = require('async');
+const Logger=require('../utils/logger')
 
-function getOneBlock4DB(height, areturn) {
+function getOneBlock4DB(asset, height, areturn) {
     if (!height) {
         return areturn(new MyError(ERR_SERVICE_CODE.ERR_HEIGHT_NULL, '!height'));
     }
+
+    let Rpc=new rpc();
 
     Async.waterfall([
             function (done) {
@@ -22,45 +25,71 @@ function getOneBlock4DB(height, areturn) {
                     if (err) {
                         return done(err);
                     }
-                    let rawtxs=[];
-                    result['tx'].forEach(function (value,index,arr) {
+                    let rawtxs = [];
+                    result['tx'].forEach(function (value) {
                         rawtxs.push({
-                            asset:'BTC',
-                            height:height,
-                            txid:value
+                            asset: asset,
+                            height: height,
+                            txid: value,
                         });
                     })
                     return done(null, rawtxs);
                 })
             },
             function (arg1, done) {
-                Async.mapLimit(arg1['txid'],10,
+                let rawtx_inputs = [];
+                let rawtx_outputs = [];
+                Async.eachSeries(arg1,
                     function (node, cb) {
-                        Rpc.getrawtransaction(node, (err, result) => {
+                        Rpc.getrawtransaction(node['txid'], (err, result) => {
                             if (err) {
                                 return cb(err);
                             }
-                            if(node!==result['hash']){
+
+                            if (node['txid'] !== result['hash']) {
                                 return done(ERR_SERVICE_CODE.ERR_HASH_NOT_EQUAL)
                             }
-                            let rawtx_inputs=[];
-                            result['vin'].forEach((value,index,arr)=>{
-                                rawtx_inputs.push({
-                                    asset:'BTC',
-                                    tx_id:value['txid'],
-                                    previous_output_id:value['vout'],
-                                });
-                            })
 
+                            result['vin'].forEach((value) => {
+                                if(!value['coinbase']){
+                                    rawtx_inputs.push({
+                                        asset: asset,
+                                        tx_id: value['txid'],
+                                        previous_output_id: value['vout'],
+                                    });
+                                }
+                            });
+
+                            result['vout'].forEach((value) => {
+                                rawtx_outputs.push({
+                                    asset: asset,
+                                    tx_id: node['txid'],
+                                    output_index: value['n'],
+                                    value: value['value'],
+                                    address: value['scriptPubKey']['addresses'][0]
+                                })
+                            });
+                            return cb()
                         })
                     },
                     function (err, results) {
-
+                        if (err) {
+                            return done(err);
+                        }
+                        return done(null, {rawtxs: arg1, rawtx_input: rawtx_inputs, rawtx_output: rawtx_outputs})
                     })
             }
         ],
-        function () {
-
+        function (err, result) {
+            if (err) {
+                Logger.error(err);
+                return areturn();
+            }
+            return areturn(null, result);
         })
-
 }
+
+getOneBlock4DB('BTC',170001,(err,res)=>{
+    console.log(err);
+    console.log(res);
+})

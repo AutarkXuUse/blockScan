@@ -16,12 +16,14 @@ let rawtx_table = {
 	},
 	height: {
 		type: sequelize.BIGINT,
-		allowNull: true
+        unique:true,
+        allowNull: true
 	}
 	,
 	txid: {
 		type: sequelize.STRING,
-		allowNull: false,
+        unique:true,
+        allowNull: false,
 	},
 };
 
