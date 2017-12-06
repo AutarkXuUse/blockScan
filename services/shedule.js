@@ -5,7 +5,8 @@ const Async = require('async');
 const Logger = require('../utils/logger');
 
 let startScan = function (asset) {
-    global[asset]['height']++
+    global[asset]['height']++;
+    Logger.info('Sync block :' +global[asset]['height']);
     Async.waterfall([
             function (done) {
                 Sync.getOneBlock4DB(asset, global[asset]['height'], (err, res) => {
@@ -29,10 +30,11 @@ let startScan = function (asset) {
                 Logger.error('Sync failed at ' + global[asset]['height']);
                 Logger.warn('retry after 1 seconds');
                 global[asset]['height']--;
+                setTimeout(()=>{startScan(asset)},1000)
             }else{
                 Logger.info('Sync success at ' + global[asset]['height']);
+                startScan(asset)
             }
-            startScan(asset)
         })
 }
 

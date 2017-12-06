@@ -7,9 +7,10 @@ const Rawtx = require('../db/models/rawtx');
 const Rawtx_output = require('../db/models/rawtx_output');
 const Rawtx_input = require('../db/models/rawtx_input');
 let DBWallet = require('../db/connect').DBWallet;
-let sequelize=require('sequelize');
+let sequelize = require('sequelize');
+const ErrorCode = require('../msgdefine/msgtype');
 
-exports.getOneBlock4DB=function(asset, height, areturn) {
+exports.getOneBlock4DB = function (asset, height, areturn) {
     if (!height) {
         return areturn(new MyError(ERR_SERVICE_CODE.ERR_HEIGHT_NULL, '!height'));
     }
@@ -67,13 +68,23 @@ exports.getOneBlock4DB=function(asset, height, areturn) {
                             });
 
                             result['vout'].forEach((value) => {
-                                rawtx_outputs.push({
-                                    asset: asset,
-                                    tx_id: node['txid'],
-                                    output_index: value['n'],
-                                    value: value['value'],
-                                    address: value['scriptPubKey']['addresses'][0]
-                                })
+                                if (value['scriptPubKey']['type'] === 'nonstandard') {
+                                    rawtx_outputs.push({
+                                        asset: asset,
+                                        tx_id: node['txid'],
+                                        output_index: value['n'],
+                                        value: value['value'],
+                                        address: ErrorCode.HARDCODE_ERR_DEFINE[asset]['NOTSTANDARD']
+                                    })
+                                } else {
+                                    rawtx_outputs.push({
+                                        asset: asset,
+                                        tx_id: node['txid'],
+                                        output_index: value['n'],
+                                        value: value['value'],
+                                        address: value['scriptPubKey']['addresses'][0]
+                                    })
+                                }
                             });
                             return cb()
                         })
@@ -95,7 +106,7 @@ exports.getOneBlock4DB=function(asset, height, areturn) {
         })
 }
 
-exports.persistOneBlock=function(asset, blockTxData, areturn) {
+exports.persistOneBlock = function (asset, blockTxData, areturn) {
     if (!blockTxData) {
         return areturn(new MyError(ERR_SERVICE_CODE.ERR_UNKNOW, '!blockTxData'));
     }
@@ -119,19 +130,19 @@ exports.persistOneBlock=function(asset, blockTxData, areturn) {
         Logger.info('persist ok');
         return areturn();
     }).catch(e => {
-        Logger.error('Failed persist Block'+e.message)
+        Logger.error('Failed persist Block' + e.message)
         return areturn();
     })
 }
 
-exports.getLastHeightInDB=function (asset,areturn) {
+exports.getLastHeightInDB = function (asset, areturn) {
     Rawtx[asset].findAll({
         attributes: [[sequelize.fn('MAX', sequelize.col('height')), 'height']]
     }).then(record => {
         if (!record.length) {
-            return areturn(null,0);
+            return areturn(null, 0);
         }
-        return areturn(null,record[0].height);
+        return areturn(null, record[0].height);
     }).catch(err => {
         Logger.error('getLastHeightInDB,error:%s', err.message);
         return areturn(err);
@@ -164,7 +175,7 @@ function generate4Input(outputs, rawtxOutputRecords, blockTxData) {
     let obj4db = [];
     let outputsObj = {};
     for (let one of outputs) {
-        outputsObj[one['txid']]=one['rawtx_id']
+        outputsObj[one['txid']] = one['rawtx_id']
     }
     blockTxData.rawtx_inputs.forEach((value) => {
         for (let v of rawtxOutputRecords) {
