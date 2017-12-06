@@ -48,7 +48,3 @@ exports.initOrm = function (areturn) {
         })
 
 }
-
-require('./init').initOrm(err => {
-    console.log(err)
-})

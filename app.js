@@ -3,36 +3,49 @@ let serverName = 'blockScan'
 process.title = serverName;
 
 const Config = require('./config');
-const Rawtx = require('./db/models/rawtx');
 const Async=require('async');
-global.rawtx_id = {};
+const Sync=require('./services/sync');
+const Shedule=require('./services/shedule');
+const Logger = require('./utils/logger');
+const ormInit=require('./db/init');
 
-function initGlobal() {
-    Async.mapSeries(Config.supportAssets,function (node,done) {
-        Rawtx[node].findAll(
-            {
-                where: {
-                    asset: node,
-                },
-                order: [['id','DESC']],
-                limit: 1
-            }
-        ).then(record => {
-            if (record.length === 0) {
-                rawtx_id[node]=0;
-            } else {
-                rawtx_id[node] = record[0].id;
-            }
-            return done();
-        }).catch(err => {
-            return done(err);
-        });
-    },(err,result)=>{
-        if(err){
-            console.log(err);
+Config.supportAssets.forEach((value)=>{
+    global[value]={height:0};
+})
+
+function initServer() {
+    Async.series([
+        function (done) {
+            ormInit.initOrm((err)=>{
+                if(err){
+                    Logger.error('Init orm failed:'+err.message);
+                    return done(err);
+                }
+                return done();
+            })
+        },
+        function (done) {
+            Sync.getLastHeightInDB('BTC',(err,result)=>{
+                if(err){
+                    Logger.error('Query block height from db failed:'+err.message);
+                    return done(err);
+                }
+                global['BTC']['height']=result;
+                return done();
+            })
+
+        },
+        function (done) {
+            Shedule.startScan('BTC',BTC['height'])
+            return done()
         }
-        console.log(global.rawtx_id)
+    ],function (err) {
+        if(err){
+            process.exit();
+        }
+        Logger.info('start success');
     })
 
 }
 
+initServer();
