@@ -10,7 +10,7 @@ let startScan = function (asset) {
         return;
     }
     global[asset]['height']++;
-    Logger.info('Sync block :' +global[asset]['height']);
+    Logger.info('Sync block :%d',global[asset]['height']);
     Async.waterfall([
             function (done) {
                 Sync.getOneBlock4DB(asset, global[asset]['height'], (err, res) => {
@@ -36,7 +36,7 @@ let startScan = function (asset) {
                 global[asset]['height']--;
                 setTimeout(()=>{startScan(asset)},1000)
             }else{
-                Logger.info('Sync success at ' + global[asset]['height']);
+                Logger.info('*********Sync success at %d********',global[asset]['height']);
                 startScan(asset)
             }
         })
