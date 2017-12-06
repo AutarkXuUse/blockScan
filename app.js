@@ -74,7 +74,8 @@ function handleUncaughtException(err) {
 function safeExit() {
     Config.supportAssets.forEach((value)=>{
         global[value]['stop']=true;
-    })
+    });
+    process.exit();
 }
 
 initServer((err)=>{
