@@ -9,4 +9,4 @@ let LTC=function () {
 
 Util.inherits(LTC,Bitcoin);
 
-module.exports=LTC;
+module.exports=new LTC();

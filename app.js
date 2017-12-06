@@ -35,15 +35,16 @@ function initServer(areturn) {
                     return cb();
                 })
             }, (err) => {
-                if (err)
-                {
+                if (err) {
                     return done(err);
                 }
                 return done()
             })
         },
         function (done) {
-            Shedule.startScan('BTC', BTC['height']);
+            Config.supportAssets.forEach((value) => {
+                Shedule.startScan(value, global[value]['height']);
+            })
             return done()
         }
     ], function (err) {

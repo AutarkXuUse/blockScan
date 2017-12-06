@@ -1,6 +1,5 @@
 'use strict'
 const ERR_SERVICE_CODE = require('../msgdefine/msgtype').ERR_SERVICE_CODE;
-const rpc = require('../rpcs/BTC');
 const Async = require('async');
 const Logger = require('../utils/logger');
 const Rawtx = require('../db/models/rawtx');
@@ -9,17 +8,23 @@ const Rawtx_input = require('../db/models/rawtx_input');
 let DBWallet = require('../db/connect').DBWallet;
 let sequelize = require('sequelize');
 const ErrorCode = require('../msgdefine/msgtype');
+const Config=require('../config/config');
+
+let Rpcs={}
+Config.supportAssets.forEach((value) => {
+    Rpcs[value] = require('../rpcs/' + value);
+})
+
 
 exports.getOneBlock4DB = function (asset, height, areturn) {
     if (!height) {
         return areturn(new MyError(ERR_SERVICE_CODE.ERR_HEIGHT_NULL, '!height'));
     }
 
-    let Rpc = new rpc();
 
     Async.waterfall([
             function (done) {
-                Rpc.getBlockHashByheight(height, (err, result) => {
+                Rpcs[asset].getBlockHashByheight(height, (err, result) => {
                     if (err) {
                         return done(err);
                     }
@@ -27,7 +32,7 @@ exports.getOneBlock4DB = function (asset, height, areturn) {
                 })
             },
             function (arg1, done) {
-                Rpc.getBlockInfo(arg1, (err, result) => {
+                Rpcs[asset].getBlockInfo(arg1, (err, result) => {
                     if (err) {
                         return done(err);
                     }
@@ -47,7 +52,7 @@ exports.getOneBlock4DB = function (asset, height, areturn) {
                 let rawtx_outputs = [];
                 Async.eachSeries(arg1,
                     function (node, cb) {
-                        Rpc.getrawtransaction(node['txid'], (err, result) => {
+                        Rpcs[asset].getrawtransaction(node['txid'], (err, result) => {
                             if (err) {
                                 return cb(err);
                             }
@@ -139,7 +144,7 @@ exports.getLastHeightInDB = function (asset, areturn) {
     Rawtx[asset].findAll({
         attributes: [[sequelize.fn('MAX', sequelize.col('height')), 'height']]
     }).then(record => {
-        if (!record.length||!record[0]['height']) {
+        if (!record.length || !record[0]['height']) {
             return areturn(null, 0);
         }
         return areturn(null, record[0].height);

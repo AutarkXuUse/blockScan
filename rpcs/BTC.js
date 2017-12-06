@@ -9,4 +9,4 @@ let BTC=function () {
 
 Util.inherits(BTC,Bitcoin);
 
-module.exports=BTC;
+module.exports=new BTC();
