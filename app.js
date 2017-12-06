@@ -2,7 +2,7 @@
 let serverName = 'blockScan'
 process.title = serverName;
 
-const Config = require('./config');
+const Config = require('./config/config');
 const Async=require('async');
 const Sync=require('./services/sync');
 const Shedule=require('./services/shedule');

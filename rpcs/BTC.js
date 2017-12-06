@@ -1,6 +1,6 @@
 'use strict'
 const Bitcoin=require('./bitcoin');
-const Config=require('../rpc_config').BTC;
+const Config=require('../config/rpc_config').BTC;
 const Util=require('util');
 
 let BTC=function () {

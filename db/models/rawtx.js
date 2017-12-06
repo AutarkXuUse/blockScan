@@ -1,6 +1,6 @@
 'use strict';
 let sequelize = require('sequelize');
-let Config=require('../../config');
+let Config=require('../../config/config');
 const DBWallet = require('../connect').DBWallet;
 
 let rawtx_table = {

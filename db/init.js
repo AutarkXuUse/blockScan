@@ -3,7 +3,7 @@ const Rawtx = require('./models/rawtx');
 const Rawtx_output = require('./models/rawtx_output');
 const Rawtx_input = require('./models/rawtx_input');
 const Async = require('async');
-const Config = require('../config');
+const Config = require('../config/config');
 const Logger = require('../utils/logger');
 let DBWallet = require('./connect').DBWallet;
 
