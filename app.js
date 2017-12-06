@@ -3,44 +3,51 @@ let serverName = 'blockScan'
 process.title = serverName;
 
 const Config = require('./config/config');
-const Async=require('async');
-const Sync=require('./services/sync');
-const Shedule=require('./services/shedule');
+const Async = require('async');
+const Sync = require('./services/sync');
+const Shedule = require('./services/shedule');
 const Logger = require('./utils/logger');
-const ormInit=require('./db/init');
+const ormInit = require('./db/init');
 
-Config.supportAssets.forEach((value)=>{
-    global[value]={height:0,stop:false};
+Config.supportAssets.forEach((value) => {
+    global[value] = {height: 0, stop: false};
 })
 
 function initServer(areturn) {
     Async.series([
         function (done) {
-            ormInit.initOrm((err)=>{
-                if(err){
-                    Logger.error('Init orm failed:'+err.message);
+            ormInit.initOrm((err) => {
+                if (err) {
+                    Logger.error('Init orm failed:' + err.message);
                     return done(err);
                 }
                 return done();
             })
         },
         function (done) {
-            Sync.getLastHeightInDB('BTC',(err,result)=>{
-                if(err){
-                    Logger.error('Query block height from db failed:'+err.message);
+            Async.eachSeries(Config.supportAssets, function (node, cb) {
+                Sync.getLastHeightInDB(node, (err, result) => {
+                    if (err) {
+                        Logger.error('Query block height from db failed:' + err.message);
+                        return cb(err);
+                    }
+                    global[node]['height'] = result;
+                    return cb();
+                })
+            }, (err) => {
+                if (err)
+                {
                     return done(err);
                 }
-                global['BTC']['height']=result;
-                return done();
+                return done()
             })
-
         },
         function (done) {
-            Shedule.startScan('BTC',BTC['height']);
+            Shedule.startScan('BTC', BTC['height']);
             return done()
         }
-    ],function (err) {
-        if(err){
+    ], function (err) {
+        if (err) {
             return areturn(err);
         }
         return areturn();
@@ -72,14 +79,14 @@ function handleUncaughtException(err) {
 }
 
 function safeExit() {
-    Config.supportAssets.forEach((value)=>{
-        global[value]['stop']=true;
+    Config.supportAssets.forEach((value) => {
+        global[value]['stop'] = true;
     });
     process.exit();
 }
 
-initServer((err)=>{
-    if(err){
+initServer((err) => {
+    if (err) {
         process.exit();
     }
     Logger.info('Server init success.Start running ...');

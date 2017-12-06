@@ -139,7 +139,7 @@ exports.getLastHeightInDB = function (asset, areturn) {
     Rawtx[asset].findAll({
         attributes: [[sequelize.fn('MAX', sequelize.col('height')), 'height']]
     }).then(record => {
-        if (!record.length) {
+        if (!record.length||!record[0]['height']) {
             return areturn(null, 0);
         }
         return areturn(null, record[0].height);
