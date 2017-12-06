@@ -4,7 +4,8 @@ const Rawtx_output = require('./models/rawtx_output');
 const Rawtx_input = require('./models/rawtx_input');
 const Async = require('async');
 const Config = require('../config');
-const Logger=require('../utils/logger');
+const Logger = require('../utils/logger');
+let DBWallet = require('./connect').DBWallet;
 
 exports.initOrm = function (areturn) {
     Async.map(Config.supportAssets, function (node, callback) {
@@ -48,6 +49,6 @@ exports.initOrm = function (areturn) {
 
 }
 
-require('./init').initOrm(err=>{
+require('./init').initOrm(err => {
     console.log(err)
 })

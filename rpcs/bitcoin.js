@@ -13,7 +13,7 @@ function Bitcoin(config) {
     this.port = config.port;
     this.auth = 'Basic ' + new Buffer(util.format('%s:%s', config.rpcuser, config.rpcpassword)).toString('base64');
     this.asset = config.asset;
-}
+};
 
 Bitcoin.prototype.start = function (areturn) {
 
@@ -109,7 +109,7 @@ Bitcoin.prototype.getrawtransaction = function (tx, areturn) {
         }
         return areturn(null,res.result);
     })
-}
+};
 
 Bitcoin.prototype.getBlockHashByheight=function (height,areturn) {
     this._makeRequest('getblockhash',[height],(err,res)=>{
@@ -123,7 +123,7 @@ Bitcoin.prototype.getBlockHashByheight=function (height,areturn) {
         }
         return areturn(null,res.result);
     })
-}
+};
 
 Bitcoin.prototype.getBlockInfo=function(hash,areturn){
     this._makeRequest('getblock',[hash],(err,res)=>{
@@ -137,7 +137,6 @@ Bitcoin.prototype.getBlockInfo=function(hash,areturn){
         }
         return areturn(null,res.result);
     })
-}
-
+};
 
 module.exports = Bitcoin;

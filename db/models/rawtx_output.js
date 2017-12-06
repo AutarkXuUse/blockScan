@@ -6,7 +6,7 @@ let Config=require('../../config');
 let tx_output_table = {
 	id: {
 		type: sequelize.BIGINT,
-		autoIncrement: false,
+		autoIncrement: true,
 		unique: true,
 		primaryKey: true,
 	},
@@ -35,7 +35,7 @@ let tx_output_table = {
 };
 
 let rawtx_output={}
-for(var v of Config.supportAssets){
+for(let v of Config.supportAssets){
     rawtx_output[v] = DBWallet.define(v+'_rawtx_output', tx_output_table, {
         freezeTableName: true,
         indexes: [

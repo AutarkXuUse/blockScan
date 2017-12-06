@@ -6,7 +6,7 @@ const DBWallet = require('../connect').DBWallet;
 let rawtx_table = {
 	id: {
 		type: sequelize.BIGINT,
-		autoIncrement: false,
+		autoIncrement: true,
 		unique:true,
 		primaryKey: true,
 	},
@@ -16,7 +16,7 @@ let rawtx_table = {
 	},
 	height: {
 		type: sequelize.BIGINT,
-        unique:true,
+        unique:false,
         allowNull: true
 	}
 	,
