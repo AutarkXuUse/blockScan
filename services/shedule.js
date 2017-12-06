@@ -5,6 +5,10 @@ const Async = require('async');
 const Logger = require('../utils/logger');
 
 let startScan = function (asset) {
+    if(global[asset]['stop']){
+        Logger.warn('%s block scan stopped',asset);
+        return;
+    }
     global[asset]['height']++;
     Logger.info('Sync block :' +global[asset]['height']);
     Async.waterfall([

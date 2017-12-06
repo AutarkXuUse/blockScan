@@ -10,7 +10,7 @@ const Logger = require('./utils/logger');
 const ormInit=require('./db/init');
 
 Config.supportAssets.forEach((value)=>{
-    global[value]={height:0};
+    global[value]={height:0,stop:false};
 })
 
 function initServer(areturn) {
@@ -36,7 +36,7 @@ function initServer(areturn) {
 
         },
         function (done) {
-            Shedule.startScan('BTC',BTC['height'])
+            Shedule.startScan('BTC',BTC['height']);
             return done()
         }
     ],function (err) {
@@ -57,16 +57,24 @@ function handleBeforeExit(err, value) {
 //退出处理;
 function handleExit(err, value) {
     console.log("退出处理", err, value);
+    safeExit();
     return true;
 }
 
 //SIGINT处理(Ctrl+C)
 function handleSigInt(err, value) {
     Logger.warn("SIGINT处理，准备退出", err, value);
+    safeExit();
 }
 
 function handleUncaughtException(err) {
     Logger.error("uncaught exception:", err.stack);
+}
+
+function safeExit() {
+    Config.supportAssets.forEach((value)=>{
+        global[value]['stop']=true;
+    })
 }
 
 initServer((err)=>{
